@@ -27,10 +27,9 @@
     "bugs": {
         "url": "https://github.com/fossbrew/gitpr_cli/issues"
     },
-    "homepage": "https://github.com/ManrajGrover/football-cli#readme",
+    "homepage": "https://github.com/fossbrew/gitpr-cli#readme",
     "dependencies": {
         "chalk": "^1.1.3",
-        "cli-table": "^0.3.1",
         "inquirer": "^1.1.2",
         "moment": "^2.14.1",
         "ora": "^0.3.0",
@@ -38,10 +37,6 @@
         "yargs": "^5.0.0"
     },
     "devDependencies": {
-        "eslint": "^3.13.0",
-        "eslint-config-airbnb": "^13.0.0",
-        "eslint-plugin-import": "^2.2.0",
-        "eslint-plugin-jsx-a11y": "^2.2.3",
-        "eslint-plugin-react": "^6.8.0"
+
     }
 }

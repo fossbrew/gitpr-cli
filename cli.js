@@ -79,59 +79,76 @@ const argv = yargs
 			}).catch((err) => {});
 		}
 
-		const spinner = ora('Getting required data').start();
+		if (repoArgs.t == "" || repoArgs.t === undefined) {
+			console.log(chalk.red('Title (-t) is a required parameter.'));
+			return;
+		}
+
+		if (repoArgs.r == "" || repoArgs.r === undefined) {
+			console.log(chalk.red('Remote (-r) is a required parameter.'));
+			return;
+		}
+
+		var spinner = ora('Getting required data....').start();
 
 		var requestData = {
 			owner: '',
 			repo: '',
 			title: repoArgs.t,
-			body: repoArgs.desc,
+			body: repoArgs.desc === undefined ? '' : repoArgs.desc,
 			head: '',
 			base: repoArgs.r,
 		};
 
-		cmd.get(
-			"git branch | grep \* | cut -d ' ' -f2",
-			function (err, data, stderr) {
-				requestData.head = config.USERNAME + ':' + data;
-			}
-		);
-
-		cmd.get(
-			"git config --get remote." + repoArgs.r + ".url",
-			function (err, data, stderr) {
-				if (data == "") {
-					console.log(chalk.red('Remote does not exist'));
-					return;
+		(function (requestData) {
+			cmd.get(
+				"git branch | grep \* | cut -d ' ' -f2",
+				function (err, data, stderr) {
+					requestData.head = config.USERNAME + ':' + data;
 				}
+			);
 
-				if (isValidUrl(data)) {
-					data = str.replace(/.git\s*$/, "");
-					data = str.split("/");
-					requestData.owner = data[1];
-					requestData.repo = data[2];
-				} else {
-					data = str.replace(/.git\s*$/, "");
-					data = str.split('/');
-					requestData.repo = data[1];
-					requestData.owner = data[0].split(':')[1];
+			cmd.get(
+				"git config --get remote." + repoArgs.r + ".url",
+				function (err, data, stderr) {
+					if (data == "") {
+						console.log(chalk.red('Remote does not exist'));
+						return;
+					}
+
+					if (isValidUrl(data)) {
+						data = str.replace(/.git\s*$/, "");
+						data = str.split("/");
+						requestData.owner = data[1];
+						requestData.repo = data[2];
+					} else {
+						data = str.replace(/.git\s*$/, "");
+						data = str.split('/');
+						requestData.repo = data[1];
+						requestData.owner = data[0].split(':')[1];
+					}
 				}
-			}
-		);
+			);
+		}) (requestData);
 
-		console.log(requestData);
 		spinner.stop();
-		return;
+		spinner = ora('Authenticating...').start();
 
 		github.authenticate({
 			type: 'token',
 			token: config.ACCESS_TOKEN
 		})
 
-		github.pullRequests.create(data, function (err, res) {
+		spinner.stop();
+
+		spinner = ora('Generating pull request...').start();
+		github.pullRequests.create(requestData, function (err, res) {
+			console.log(requestData);
 			if (err) throw err;
 			console.log(JSON.stringify(res))
 		});
+
+		spinner.stop();
 	})
 	.command('config', 'Change configuration and defaults', (yargsConfig) => {
 		/**

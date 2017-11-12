@@ -1,3 +1,1 @@
-Command Line Interface for creating pull requests on GitHub Edit
-1a610ea74b27a3569c619a0e1658079b8bea8c42
-rajathans
+Command Line Interface for creating pull requests on GitHub
